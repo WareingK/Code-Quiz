@@ -1,6 +1,23 @@
 // Wrap all code that interacts with the DOM in a call to jQuery to ensure that
 // the code isn't run until the browser has finished rendering all the elements
 // in the html.
+document.addEventListener('DOMContentLoader', function () {
+  const timeBlocks = document.querySelectorAll('.time-block');
+  timeBlocks.forEach(function (block){
+    const hour = pareseInt(block.id.split('-')[1]);
+    const currentHour = new Date().getHours();
+
+
+    // Getting time to adjust for background
+    if (hour < currentHour) {
+      block.classList.add('past');
+    } else if (hour === currentHour) {
+      block.classList.add('present');
+    } else {
+      block.classList.add('future');
+    }
+  });
+});
 $(function () {
   // Add listener for click events on the save button
   $('.saveBtn').on('click', function () {

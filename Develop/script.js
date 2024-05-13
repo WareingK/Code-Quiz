@@ -1,60 +1,77 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-document.addEventListener('DOMContentLoader', function () {
-  const timeBlocks = document.querySelectorAll('.time-block');
-  timeBlocks.forEach(function (block){
-    const hour = pareseInt(block.id.split('-')[1]);
-    const currentHour = new Date().getHours();
-
-
-    // Getting time to adjust for background
-    if (hour < currentHour) {
-      block.classList.add('past');
-    } else if (hour === currentHour) {
-      block.classList.add('present');
-    } else {
-      block.classList.add('future');
-    }
-  });
-});
 $(function () {
-  // Add listener for click events on the save button
-  $('.saveBtn').on('click', function () {
-    // Get the id of the parent time-block
+  // Function to create time blocks
+  const createTimeBlock = (hour) => {
+    const timeBlock = $('<div>').addClass('row time-block').attr('id', `hour-${hour}`);
+    const hourDiv = $('<div>').addClass('col-2 col-md-1 hour text-center py-3').text(`${hour}AM`);
+    const textarea = $('<textarea>').addClass('col-8 col-md-10 description').attr('rows', 3);
+    const button = $('<button>').addClass('btn saveBtn col-2 col-md-1').attr('aria-label', 'save').html('<i class="fas fa-save" aria-hidden="true"></i>');
+
+    timeBlock.append(hourDiv, textarea, button);
+    return timeBlock;
+  };
+
+  // Function to generate time blocks
+  const generateTimeBlocks = () => {
+    for (let hour = 9; hour <= 22; hour++) {
+      const timeBlock = createTimeBlock(hour);
+      $('#time-blocks-container').append(timeBlock);
+    }
+  };
+
+  // Function to set time block colors
+  const setTimeBlockColors = () => {
+    var currentHour = dayjs().hour();
+    $('.time-block').each(function () {
+      var timeBlockId = $(this).attr('id');
+      var blockHour = parseInt(timeBlockId.split('-')[1]);
+      if (blockHour < currentHour) {
+        $(this).addClass('past');
+      } else if (blockHour === currentHour) {
+        $(this).addClass('present');
+      } else {
+        $(this).addClass('future');
+      }
+    });
+  };
+
+  // Function to save user input in local storage
+  $(document).on('click', '.saveBtn', function () {
     var timeBlockId = $(this).closest('.time-block').attr('id');
-    // Get the user input from the textarea
     var userInput = $(this).siblings('.description').val();
-    // Save the user input in local storage using the time-block id as a key
+    console.log(timeBlockId);
     localStorage.setItem(timeBlockId, userInput);
   });
 
-  // Get the current hour using Day.js
-  var currentHour = dayjs().hour();
+  // Initialize the scheduler
+  const initializeScheduler = () => {
+    generateTimeBlocks();
+    setTimeBlockColors();
+    $('#currentDay').text(dayjs().format('dddd, MMMM D'));
+  };
 
-  // Loop through each time-block
+  // Call the initializeScheduler function when the DOM content is loaded
+  initializeScheduler();
+});
+
+$(document).ready(function () {
   $('.time-block').each(function () {
-    // Get the id of the time-block
-    var timeBlockId = $(this).attr('id');
-    // Parse the hour from the time-block id (e.g., "hour-9" => 9)
-    var blockHour = parseInt(timeBlockId.split('-')[1]);
-    // Add or remove classes based on the current hour
-    if (blockHour < currentHour) {
+    const hour = parseInt($(this).attr('id').split('-')[1]);
+    const currentHour = new Date().getHours();
+    if (hour < currentHour) {
       $(this).addClass('past');
-    } else if (blockHour === currentHour) {
+    } else if (hour === currentHour) {
       $(this).addClass('present');
     } else {
       $(this).addClass('future');
     }
   });
-
-  // Get any user input saved in localStorage and set the values of corresponding textarea elements
-  $('.time-block').each(function () {
+   // Get any user input saved in localStorage and set the values of corresponding textarea elements
+   $('.time-block').each(function () {
     var timeBlockId = $(this).attr('id');
     var userInput = localStorage.getItem(timeBlockId);
     $(this).find('.description').val(userInput);
   });
-
   // Display the current date in the header of the page
   $('#currentDay').text(dayjs().format('dddd, MMMM D'));
 });
+

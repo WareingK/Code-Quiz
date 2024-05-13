@@ -1,8 +1,13 @@
 $(function () {
   // Function to create time blocks
   const createTimeBlock = (hour) => {
+    // Using the AM PM format :c
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    const timeLabel = `${displayHour}${ampm}`;
+
     const timeBlock = $('<div>').addClass('row time-block').attr('id', `hour-${hour}`);
-    const hourDiv = $('<div>').addClass('col-2 col-md-1 hour text-center py-3').text(`${hour}AM`);
+    const hourDiv = $('<div>').addClass('col-2 col-md-1 hour text-center py-3').text(`${timeLabel}`);
     const textarea = $('<textarea>').addClass('col-8 col-md-10 description').attr('rows', 3);
     const button = $('<button>').addClass('btn saveBtn col-2 col-md-1').attr('aria-label', 'save').html('<i class="fas fa-save" aria-hidden="true"></i>');
 
@@ -12,7 +17,7 @@ $(function () {
 
   // Function to generate time blocks
   const generateTimeBlocks = () => {
-    for (let hour = 9; hour <= 22; hour++) {
+    for (let hour = 9; hour <= 17; hour++) {
       const timeBlock = createTimeBlock(hour);
       $('#time-blocks-container').append(timeBlock);
     }
